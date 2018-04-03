@@ -1,9 +1,13 @@
 package com.md.sensorsactivity;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import android.widget.Toast;
+
+import java.io.File;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -17,7 +21,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
-        SQLiteDatabase db = this.getWritableDatabase();
     }
 
     @Override
@@ -29,5 +32,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME); // deleting table if exists
         onCreate(db);
+    }
+
+    public boolean insertData(float X_ACC, float Y_ACC, float Z_ACC) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COL_X_ACC,X_ACC);
+        contentValues.put(COL_Y_ACC,Y_ACC);
+        contentValues.put(COL_Z_ACC,Z_ACC);
+        long result = db.insert(TABLE_NAME,null ,contentValues);
+        if(result == -1)
+            return false;
+        else
+            return true;
+    }
+
+    public void deleteDB() {
+        File fdelete = new File("/data/data/" + "com.md.sensorsactivity" + "/databases/" + DATABASE_NAME);
+        if (fdelete.exists()) {
+            if (fdelete.delete()) {
+                Log.d("", "Deleting DB!");
+            } else {
+                Log.d("", "Not deleting DB!");
+            }
+        }
     }
 }
