@@ -1,5 +1,6 @@
 package com.md.sensorsactivity;
 
+import android.app.Application;
 import android.content.pm.PackageManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,6 +18,8 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.lang.Math;
+
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -33,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         // Create Sensor Manager
         SM = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -58,14 +62,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         //Getting and displaying accelerometer data
-        final float x = sensorEvent.values[0];
-        final float y = sensorEvent.values[1];
-        final float z = sensorEvent.values[2];
+        final double x = sensorEvent.values[0];
+        final double y = sensorEvent.values[1];
+        final double z = sensorEvent.values[2];
         xText.setText("X: " + sensorEvent.values[0]);
         yText.setText("Y: " + sensorEvent.values[1]);
         zText.setText("Z: " + sensorEvent.values[2]);
         // 0 - X axis, 1 - Y axis, 2 - Z axis
         //sensorsDB.insertData(sensorEvent.values[0],sensorEvent.values[1],sensorEvent.values[2]);
+
+        final double module = Math.sqrt(x*x+y*y+z*z);
 
         //Inserting data every second if database exist
         File dbtest = new File("/data/data/" + getNameOfPackage() + "/databases/" + NameOfDB);
@@ -74,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             new Timer().scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
-                    dbRef.insertData(x);
+                    dbRef.insertData(module);
                     Log.d("", "Data inserted!");
                 }
             }, 0, 1000);//put here time 1000 milliseconds=1 second

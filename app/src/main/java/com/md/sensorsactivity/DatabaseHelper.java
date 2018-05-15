@@ -51,10 +51,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 // Inserting data
-    public boolean insertData(float X_ACC) {
+    public boolean insertData(double X_ACC) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(COL_VALUES, Float.toString(X_ACC));
+        contentValues.put(COL_VALUES, Double.toString(X_ACC));
         long result = db.insert(TABLE_NAME, null, contentValues);
         if (result == -1)
             return false;
