@@ -1,10 +1,7 @@
 package com.md.sensorsactivity;
 
-import android.app.Application;
-import android.content.pm.PackageManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.hardware.SensorEvent;
@@ -13,13 +10,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import java.io.File;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.lang.Math;
-
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -31,12 +23,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private static String NameOfDB;
     private static DatabaseHelper dbRef;
 
+    private boolean flag;
+    private int samples;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        flag = false; //false = not recording data, true = recording data
 
         // Create Sensor Manager
         SM = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -57,10 +53,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // Create database
         final DatabaseHelper db = new DatabaseHelper(this);
         dbRef = db;
+
+        //Delete all rows from table on click
+        Button deleteButton = (Button) findViewById(R.id.buttonDelete);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dbRef.deleteAllRows();
+                Log.d("", "All data deleted.");
+            }
+        });
     }
 
     @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
+    public void onSensorChanged(final SensorEvent sensorEvent) {
+
         //Getting and displaying accelerometer data
         final double x = sensorEvent.values[0];
         final double y = sensorEvent.values[1];
@@ -69,23 +76,40 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         yText.setText("Y: " + sensorEvent.values[1]);
         zText.setText("Z: " + sensorEvent.values[2]);
         // 0 - X axis, 1 - Y axis, 2 - Z axis
-        //sensorsDB.insertData(sensorEvent.values[0],sensorEvent.values[1],sensorEvent.values[2]);
 
-        final double module = Math.sqrt(x*x+y*y+z*z);
+        //Calculate module of single sensor data
+        final double module = Math.sqrt(x * x + y * y + z * z);
 
-        //Inserting data every second if database exist
+        //Check if database exists
         File dbtest = new File("/data/data/" + getNameOfPackage() + "/databases/" + NameOfDB);
         if (dbtest.exists()) {
-            Log.d("", "Adding to database is possible!");
-            new Timer().scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    dbRef.insertData(module);
-                    Log.d("", "Data inserted!");
-                }
-            }, 0, 1000);//put here time 1000 milliseconds=1 second
+            //Log.d("", "Adding to database is possible!");
         } else {
             Log.d("", "Database don't exists.");
+        }
+
+        //Start recording sensor data on click
+        Button startButton = (Button) findViewById(R.id.buttonStart);
+        startButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                flag = true; //flag set to true = record data
+                samples = 0;
+            }
+        });
+
+        //Insert given number of sensor data samples into database
+        if (samples < 10) {
+            if (flag == true) {
+                dbRef.insertData(module);
+                Log.d("", "Data inserted!");
+                samples++;
+            } else {
+                //Log.d("", "samples < 10 but Flag is false - Data NOT inserted");
+            }
+        } else {
+            flag = false; //stop recording when given number of samples inserted
+            //Log.d("", "samples = 10 and Flag set to false - Data NOT inserted");
         }
 
     }

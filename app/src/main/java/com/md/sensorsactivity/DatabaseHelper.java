@@ -4,10 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
-import android.widget.Toast;
-
-import java.io.File;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -38,7 +34,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COL_LABEL + " TEXT" + ")";
 
         db.execSQL(CREATE_TABLE);
-
     }
 
     // Upgrading database
@@ -50,11 +45,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-// Inserting data
-    public boolean insertData(double X_ACC) {
+    //Inserting data
+    public boolean insertData(double sensor_data) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(COL_VALUES, Double.toString(X_ACC));
+        contentValues.put(COL_VALUES, Double.toString(sensor_data));
         long result = db.insert(TABLE_NAME, null, contentValues);
         if (result == -1)
             return false;
@@ -62,4 +57,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return true;
     }
 
+    //Deleting all data from the table
+    public void deleteAllRows() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("delete from " + TABLE_NAME);
+    }
 }
