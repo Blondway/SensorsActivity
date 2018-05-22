@@ -12,6 +12,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import java.io.File;
 import java.lang.Math;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -25,7 +28,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private boolean flag;
     private int samples;
+    private int samples_total;
+    Date currentTime;
+    String dateTime;
+    long startTime;
+    long durationTime;
 
+    ArrayList<String> arrayList = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,21 +104,39 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onClick(View view) {
                 flag = true; //flag set to true = record data
                 samples = 0;
+                samples_total = 60;
+                startTime = System.currentTimeMillis();
             }
         });
 
         //Insert given number of sensor data samples into database
-        if (samples < 10) {
+        if (samples < samples_total) {
             if (flag == true) {
-                dbRef.insertData(module);
-                Log.d("", "Data inserted!");
+                //Get current date and time
+                currentTime = Calendar.getInstance().getTime();
+                dateTime = currentTime.toString();
+
+                //Add data to list
+                String data = Double.toString(module);
+                arrayList.add(data);
                 samples++;
             } else {
                 //Log.d("", "samples < 10 but Flag is false - Data NOT inserted");
             }
-        } else {
+        } else if (samples == samples_total){
+            durationTime = System.currentTimeMillis() - startTime;
+
+            //Insert data
+            dbRef.insertData(dateTime, arrayList, durationTime);
+            Log.d("", "Data inserted!");
+
+            //Stop recording and clear variables
             flag = false; //stop recording when given number of samples inserted
-            //Log.d("", "samples = 10 and Flag set to false - Data NOT inserted");
+            arrayList.clear();
+            samples++;
+            //Log.d("", "samples = 10, Flag set to false - Data inserted");
+        } else {
+            //Log.d("", "samples > 10 and Flag set to false - Data NOT inserted");
         }
 
     }

@@ -5,33 +5,38 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
+
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     // All Static variables
     // Database Version
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
-    // Database Name
+    // Database name
     private static final String DATABASE_NAME = com.md.sensorsactivity.MainActivity.getNameOfDB();
 
-    // Contacts table name
+    // Table name
     private static final String TABLE_NAME = "Records";
 
-    // Contacts Table Columns names
+    // Table columns names
     private static final String COL_ID = "id";
     private static final String COL_VALUES = "all_values";
     private static final String COL_LABEL = "label";
+    private static final String COL_REC_TIME = "rec_time";
+    private static final String COL_DURATION = "duration";
+
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
-    // Creating Tables
+    // Creating table
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "("
-                + COL_ID + " INTEGER PRIMARY KEY," + COL_VALUES + " TEXT,"
-                + COL_LABEL + " TEXT" + ")";
+                + COL_ID + " INTEGER PRIMARY KEY," + COL_REC_TIME + " TEXT,"
+                + COL_DURATION + " TEXT," + COL_VALUES + " TEXT," + COL_LABEL + " TEXT" + ")";
 
         db.execSQL(CREATE_TABLE);
     }
@@ -46,10 +51,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     //Inserting data
-    public boolean insertData(double sensor_data) {
+    public boolean insertData(String  start_time, ArrayList single_data, long duration_time) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(COL_VALUES, Double.toString(sensor_data));
+        contentValues.put(COL_REC_TIME, start_time);
+        contentValues.put(COL_VALUES, String.valueOf(single_data));
+        contentValues.put(COL_DURATION, String.valueOf(duration_time));
         long result = db.insert(TABLE_NAME, null, contentValues);
         if (result == -1)
             return false;
