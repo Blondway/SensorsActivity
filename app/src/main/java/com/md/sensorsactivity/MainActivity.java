@@ -9,10 +9,11 @@ import android.hardware.SensorEventListener;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+
 import java.io.File;
 import java.lang.Math;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -29,14 +30,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private boolean flag;
     private int samples;
-    private int samples_total = 8;
+    private int samples_total = 256;
     Date currentTime;
     String dateTime;
     long startTime;
     long durationTime;
+    String label;
 
     double[] recordsDoubleArray = new double[samples_total];
     double[] emptyDoubleArray = new double[samples_total];
+
+    private EditText textLabel;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,8 +80,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-        for (int i = 0; i < samples_total; i++) emptyDoubleArray[i] = 0;
-        Log.d("", "Pusta tablica wyglada tak: " + Arrays.toString(emptyDoubleArray));
+        //Initialize EditText for label
+        textLabel = (EditText) findViewById(R.id.editTextLabel);
+
     }
 
     @Override
@@ -107,6 +113,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                //Get label from EditText
+                label = textLabel.getText().toString();
+
+                //Create empty table (for imaginary FFT input)
+                for (int i = 0; i < samples_total; i++) emptyDoubleArray[i] = 0;
+                Log.d("", "Pusta tablica wyglada tak: " + Arrays.toString(emptyDoubleArray));
+
                 flag = true; //flag set to true = record data
                 samples = 0;
                 startTime = System.currentTimeMillis();
@@ -130,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             } else {
                 //Log.d("", "samples < 10 but Flag is false - Data NOT inserted");
             }
-        } else if (samples == samples_total){
+        } else if (samples == samples_total) {
             durationTime = System.currentTimeMillis() - startTime;
 
             Log.d("", "Recorded data module: " + Arrays.toString(recordsDoubleArray));
@@ -145,19 +159,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             //Calculate magnitude of FFT data
             for (int i = 0; i < recordsDoubleArray.length; i++) {
-                fftMag[i] = Math.pow(recordsDoubleArray[i], 2) + Math.pow(emptyDoubleArray[i], 2);
+                fftMag[i] = Math.sqrt(Math.pow(recordsDoubleArray[i], 2) + Math.pow(emptyDoubleArray[i], 2));
             }
 
             Log.d("", "FFT Magnitude: " + Arrays.toString(fftMag));
 
-            //Insert FFT magnitude data
-            dbRef.insertData(dateTime, fftMag, durationTime);
+            //Insert FFT magnitude data (with date, duration and label)
+            dbRef.insertData(dateTime, fftMag, durationTime, label);
             Log.d("", "Data inserted!");
 
-            /*//Insert module data
-            dbRef.insertData(dateTime, recordsDoubleArray, durationTime);
-            Log.d("", "Data inserted!");
-            */
 
             //Stop recording when given number of samples inserted
             flag = false;

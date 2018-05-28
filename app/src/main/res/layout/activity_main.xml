@@ -38,4 +38,12 @@
         android:layout_height="50dp"
         android:text="Start"
         android:layout_marginTop="50dp"/>
+
+    <EditText
+        android:id="@+id/editTextLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Label" />
 </LinearLayout>
