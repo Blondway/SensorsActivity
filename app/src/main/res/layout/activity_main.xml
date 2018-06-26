@@ -6,6 +6,13 @@
     android:orientation="vertical"
     android:gravity="center">
 
+    <Button
+        android:id="@+id/buttonOptions"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:text="Options"
+        android:layout_marginBottom="20dp"/>
+
     <TextView
         android:id="@+id/xText"
         android:layout_width="wrap_content"
@@ -27,17 +34,6 @@
         android:text="Z"
         android:textSize="24dp"
         android:padding="10dp"/>
-    <Button
-        android:id="@+id/buttonDelete"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:text="Delete"/>
-    <Button
-        android:id="@+id/buttonStart"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:text="Start"
-        android:layout_marginTop="50dp"/>
 
     <EditText
         android:id="@+id/editTextLabel"
@@ -45,5 +41,14 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Label" />
+        android:text="Label"
+        android:layout_marginTop="20dp"/>
+
+    <Button
+        android:id="@+id/buttonStart"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:text="Start"
+        android:layout_marginTop="20dp"/>
+
 </LinearLayout>

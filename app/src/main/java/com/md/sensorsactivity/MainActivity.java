@@ -1,5 +1,6 @@
 package com.md.sensorsactivity;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.hardware.Sensor;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.lang.Math;
@@ -30,15 +32,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private boolean flag;
     private int samples;
-    private int samples_total = 256;
+    private int samples_total = 32;
     Date currentTime;
     String dateTime;
     long startTime;
     long durationTime;
     String label;
 
-    double[] recordsDoubleArray = new double[samples_total];
-    double[] emptyDoubleArray = new double[samples_total];
+    double[] realDoubleArray = new double[samples_total];
+    double[] imagDoubleArray = new double[samples_total];
+    double[] rawDataDoubleArray = new double[samples_total];
 
     private EditText textLabel;
 
@@ -70,13 +73,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         final DatabaseHelper db = new DatabaseHelper(this);
         dbRef = db;
 
-        //Delete all rows from table on click
-        Button deleteButton = (Button) findViewById(R.id.buttonDelete);
-        deleteButton.setOnClickListener(new View.OnClickListener() {
+        //Options button - go to OptionsActivity on Click
+        Button optionsButton = (Button) findViewById(R.id.buttonOptions);
+        optionsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dbRef.deleteAllRows();
-                Log.d("", "All data deleted.");
+                startActivity(new Intent(MainActivity.this, OptionsActivity.class));
             }
         });
 
@@ -118,8 +120,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 label = textLabel.getText().toString();
 
                 //Create empty table (for imaginary FFT input)
-                for (int i = 0; i < samples_total; i++) emptyDoubleArray[i] = 0;
-                Log.d("", "Pusta tablica wyglada tak: " + Arrays.toString(emptyDoubleArray));
+                for (int i = 0; i < samples_total; i++) imagDoubleArray[i] = 0;
 
                 flag = true; //flag set to true = record data
                 samples = 0;
@@ -136,8 +137,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 dateTime = currentTime.toString();
 
                 //Add data to array
-                recordsDoubleArray[samples] = module;
-                //Log.d("", "Zobacz co wstawilem:" + recordsDoubleArray[samples]);
+                rawDataDoubleArray[samples] = module;
+                //Log.d("", "Zobacz co wstawilem:" + rawDoubleArray[samples]);
 
                 samples++;
 
@@ -147,34 +148,36 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         } else if (samples == samples_total) {
             durationTime = System.currentTimeMillis() - startTime;
 
-            Log.d("", "Recorded data module: " + Arrays.toString(recordsDoubleArray));
+            Log.d("", "Recorded data module: " + Arrays.toString(rawDataDoubleArray));
+
+            realDoubleArray = rawDataDoubleArray; // compute FFT but from the copied Array
 
             //Calculate FFT for recorded data module
-            FFT fft = new FFT(recordsDoubleArray.length);
-            fft.fft(recordsDoubleArray, emptyDoubleArray);
-            double[] fftMag = new double[recordsDoubleArray.length];
+            FFT fft = new FFT(realDoubleArray.length);
+            fft.fft(realDoubleArray, imagDoubleArray);
+            double[] fftMagDoubleArray = new double[realDoubleArray.length];
 
-            Log.d("", "FFT real: " + Arrays.toString(recordsDoubleArray));
-            Log.d("", "FFT imaginary: " + Arrays.toString(emptyDoubleArray));
+            Log.d("", "FFT real: " + Arrays.toString(realDoubleArray));
+            Log.d("", "FFT imaginary: " + Arrays.toString(imagDoubleArray));
 
             //Calculate magnitude of FFT data
-            for (int i = 0; i < recordsDoubleArray.length; i++) {
-                fftMag[i] = Math.sqrt(Math.pow(recordsDoubleArray[i], 2) + Math.pow(emptyDoubleArray[i], 2));
+            for (int i = 0; i < realDoubleArray.length; i++) {
+                fftMagDoubleArray[i] = Math.sqrt(Math.pow(realDoubleArray[i], 2) + Math.pow(imagDoubleArray[i], 2));
             }
 
-            Log.d("", "FFT Magnitude: " + Arrays.toString(fftMag));
+            Log.d("", "FFT Magnitude: " + Arrays.toString(fftMagDoubleArray));
 
             //Insert FFT magnitude data (with date, duration and label)
-            dbRef.insertData(dateTime, fftMag, durationTime, label);
+            dbRef.insertData(dateTime, rawDataDoubleArray, realDoubleArray, imagDoubleArray, fftMagDoubleArray, durationTime, label);
             Log.d("", "Data inserted!");
-
+            Toast.makeText(this, "Data inserted!", Toast.LENGTH_LONG).show();
 
             //Stop recording when given number of samples inserted
             flag = false;
             samples++;
-            //Log.d("", "samples = 10, Flag set to false - Data inserted");
+
         } else {
-            //Log.d("", "samples > 10 and Flag set to false - Data NOT inserted");
+            //Not in use
         }
 
     }
