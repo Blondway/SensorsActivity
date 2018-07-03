@@ -13,27 +13,144 @@
         android:text="Options"
         android:layout_marginBottom="20dp"/>
 
-    <TextView
-        android:id="@+id/xText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="X"
-        android:textSize="24dp"
-        android:padding="10dp"/>
-    <TextView
-        android:id="@+id/yText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Y"
-        android:textSize="24dp"
-        android:padding="10dp"/>
-    <TextView
-        android:id="@+id/zText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Z"
-        android:textSize="24dp"
-        android:padding="10dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="196dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/AccText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="Accelerometer"
+                android:textSize="14dp" />
+
+            <TextView
+                android:id="@+id/xText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="X"
+                android:textSize="14dp" />
+
+            <TextView
+                android:id="@+id/yText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="Y"
+                android:textSize="14dp" />
+
+            <TextView
+                android:id="@+id/zText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="Z"
+                android:textSize="14dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="1">
+            <TextView
+                android:id="@+id/GyroText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="Gyroscope"
+                android:textSize="14dp" />
+
+            <TextView
+                android:id="@+id/xText2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="X"
+                android:textSize="14dp" />
+
+            <TextView
+                android:id="@+id/yText2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="Y"
+                android:textSize="14dp" />
+
+            <TextView
+                android:id="@+id/zText2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="Z"
+                android:textSize="14dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/RotationText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="Rotation vector"
+                android:textSize="14dp" />
+
+            <TextView
+                android:id="@+id/xText3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="X"
+                android:textSize="14dp" />
+
+            <TextView
+                android:id="@+id/yText3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="Y"
+                android:textSize="14dp" />
+
+            <TextView
+                android:id="@+id/zText3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="Z"
+                android:textSize="14dp" />
+
+            <TextView
+                android:id="@+id/cosText3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="Cos"
+                android:textSize="14dp" />
+
+            <TextView
+                android:id="@+id/accuracyText3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="Accuracy"
+                android:textSize="14dp" />
+        </LinearLayout>
+    </LinearLayout>
 
     <EditText
         android:id="@+id/editTextLabel"
