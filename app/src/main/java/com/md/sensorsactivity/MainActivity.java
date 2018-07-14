@@ -1,6 +1,7 @@
 package com.md.sensorsactivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.hardware.Sensor;
@@ -13,36 +14,42 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.graphics.Color;
 
 import java.io.File;
 import java.lang.Math;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     private TextView xText, yText, zText;
     private TextView xText2, yText2, zText2;
     private TextView xText3, yText3, zText3, cosText3, accuracyText3;
+    private TextView statusText, textSamples;
     private Sensor accSensor; // Accelerometer
     private Sensor gyroSensor; // Gyroscope
     private Sensor rotationSensor; // Rotation vector
     private SensorManager SM;
-    private RecordData recData;
 
     private static String NameOfPackage;
     private static String NameOfDB;
     private static DatabaseHelper dbRef;
 
     private boolean flag;
-    private int samples;
-    private int samples_total = 32;
+    private boolean waitFlag;
+    private int samples_acc, samples_gyro, samples_rotation;
+    private int samples_total = 2048;
     Date currentTime;
     String dateTime;
     long startTime;
     long durationTime;
+    long startWaiting;
+    long stopWaiting;
     String label;
+    //String samples_total_string;
     private double x, y, z, x2, y2, z2, x3, y3, z3, cos3, accuracy3;
 
     /* FFT
@@ -91,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         SM.registerListener(this, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
         SM.registerListener(this, rotationSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
+        /*
         // Accelerometer's views
         xText = (TextView) findViewById(R.id.xText);
         yText = (TextView) findViewById(R.id.yText);
@@ -107,6 +115,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         zText3 = (TextView) findViewById(R.id.zText3);
         cosText3 = (TextView) findViewById(R.id.cosText3);
         accuracyText3 = (TextView) findViewById(R.id.accuracyText3);
+        */
+
+        //Status text view
+        statusText = (TextView) findViewById(R.id.statusTextView);
 
         NameOfPackage = getApplicationContext().getPackageName();
         NameOfDB = "SensorsData.db";
@@ -127,9 +139,52 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //Initialize EditText for label
         textLabel = (EditText) findViewById(R.id.editTextLabel);
 
-        //Initialize method for recording data
-        recData = new RecordData();
+        //Initialize EditText for samples
+        textSamples = (EditText) findViewById(R.id.editTextSamples);
 
+        //Status text view
+        statusText = (TextView) findViewById(R.id.statusTextView);
+        statusText.setTextColor(Color.GRAY);
+
+        //Start recording sensor data on click
+        Button startButton = (Button) findViewById(R.id.buttonStart);
+        startButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //Get label from EditText
+                label = textLabel.getText().toString();
+
+                //Get total number of samples from EditText
+                //samples_total_string = textSamples.getText().toString();
+                //samples_total = Integer.parseInt(samples_total_string);
+                samples_total = Integer.parseInt(textSamples.getText().toString());
+
+                //Create empty table (for imaginary FFT input)
+                //for (int i = 0; i < samples_total; i++) imagDoubleArray[i] = 0;
+
+
+                //statusText.setText("Wait");
+                //statusText.setTextColor(Color.RED);
+
+
+                //Get current date and time
+                currentTime = Calendar.getInstance().getTime();
+                dateTime = currentTime.toString();
+
+                flag = true; //flag set to true = record data
+
+                samples_acc = 0;
+                samples_gyro = 0;
+                samples_rotation = 0;
+
+                startTime = System.currentTimeMillis();
+
+                statusText.setText("Recording...");
+                statusText.setTextColor(Color.GREEN);
+
+            }
+        });
     }
 
     @Override
@@ -188,40 +243,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             Log.d("", "Database don't exists.");
         }
 
-        //Start recording sensor data on click
-        Button startButton = (Button) findViewById(R.id.buttonStart);
-        startButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-                //Get label from EditText
-                label = textLabel.getText().toString();
-
-                //Create empty table (for imaginary FFT input)
-                //for (int i = 0; i < samples_total; i++) imagDoubleArray[i] = 0;
-
-                flag = true; //flag set to true = record data
-                samples = 0;
-                startTime = System.currentTimeMillis();
-
-                //Get current date and time
-                currentTime = Calendar.getInstance().getTime();
-                dateTime = currentTime.toString();
-
-            }
-        });
-
-        //Record data and insert to database
-        if (flag == true) {
-            recData.recordDataMethod(startTime, dateTime, samples_total, samples, x, y, z, x2, y2, z2, x3, y3, z3, cos3, accuracy3, label);
-            Log.d("", "Data inserted!");
-            Toast.makeText(this, "Data inserted!", Toast.LENGTH_LONG).show();
-            flag = false;
-        }
-
-    /*
         //Insert given number of sensor data samples into database
-        if (samples < samples_total) {
+        if (samples_acc < samples_total || samples_gyro < samples_total || samples_rotation < samples_total)  {
             if (flag == true) {
 
                 //Get current date and time
@@ -233,26 +257,37 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 //Log.d("", "Inserted:" + rawDoubleArray[samples]);
 
                 //Add x,y,z values to arrays for sensors
-                accDoubleArrayX[samples] = x;
-                accDoubleArrayY[samples] = y;
-                accDoubleArrayZ[samples] = z;
+                if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER && samples_acc < samples_total) {
+                    accDoubleArrayX[samples_acc] = x;
+                    accDoubleArrayY[samples_acc] = y;
+                    accDoubleArrayZ[samples_acc] = z;
 
-                gyroDoubleArrayX[samples] = x2;
-                gyroDoubleArrayY[samples] = y2;
-                gyroDoubleArrayZ[samples] = z2;
+                    samples_acc++;
+                }
 
-                rotationDoubleArrayX[samples] = x3;
-                rotationDoubleArrayY[samples] = y3;
-                rotationDoubleArrayZ[samples] = z3;
-                rotationDoubleArrayCos[samples] = cos3;
-                rotationDoubleArrayAccuracy[samples] = accuracy3;
+                if (sensorEvent.sensor.getType() == Sensor.TYPE_GYROSCOPE && samples_gyro < samples_total) {
+                    gyroDoubleArrayX[samples_gyro] = x2;
+                    gyroDoubleArrayY[samples_gyro] = y2;
+                    gyroDoubleArrayZ[samples_gyro] = z2;
 
-                samples++;
+                    samples_gyro++;
+                }
 
-            } else {
+                if (sensorEvent.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR && samples_rotation < samples_total) {
+                    rotationDoubleArrayX[samples_rotation] = x3;
+                    rotationDoubleArrayY[samples_rotation] = y3;
+                    rotationDoubleArrayZ[samples_rotation] = z3;
+                    rotationDoubleArrayCos[samples_rotation] = cos3;
+                    rotationDoubleArrayAccuracy[samples_rotation] = accuracy3;
+
+                    samples_rotation++;
+                }
+
+            } //end if flag is true
+            else {
                 //Log.d("", "samples < 10 but Flag is false - Data NOT inserted");
             }
-        } else if (samples == samples_total) {
+        } else if (samples_acc == samples_total && samples_gyro == samples_total && samples_rotation == samples_total){
             durationTime = System.currentTimeMillis() - startTime;
 
             //Log.d("", "Recorded data module: " + Arrays.toString(rawDataDoubleArray));
@@ -280,21 +315,30 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             Log.d("", "Data inserted!");
             Toast.makeText(this, "Data inserted!", Toast.LENGTH_LONG).show();
             */
-    /*
+
             //Insert x,y,z values for sensors
             dbRef.insertData(dateTime, accDoubleArrayX, accDoubleArrayY, accDoubleArrayZ,
                     gyroDoubleArrayX, gyroDoubleArrayY, gyroDoubleArrayZ,
                     rotationDoubleArrayX, rotationDoubleArrayY, rotationDoubleArrayZ, rotationDoubleArrayCos, rotationDoubleArrayAccuracy,
                     durationTime, label);
 
+            Log.d("", "Data inserted!");
+            Toast.makeText(this, "Data inserted!", Toast.LENGTH_LONG).show();
+
             //Stop recording when given number of samples inserted
             flag = false;
-            samples++;
+            samples_acc++;
+            samples_gyro++;
+            samples_rotation++;
 
-        } else {
+            statusText.setText("Not recording");
+            statusText.setTextColor(Color.GRAY);
+
+        }
+        else {
             //Not in use
         }
-    */
+
     }
 
 
