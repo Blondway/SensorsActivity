@@ -10,11 +10,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // All Static variables
     // Database Version
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 9;
 
     // Database name
     private static final String DATABASE_NAME = com.md.sensorsactivity.MainActivity.getNameOfDB();
 
+    // TABLE RECORDS
     // Table name
     private static final String TABLE_NAME = "Records";
 
@@ -42,10 +43,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL_ROTATION_COS = "rotation_cos";
     private static final String COL_ROTATION_ACCURACY = "rotation_accuracy";
 
-    //private static final String COL_ACC_RAW_DATA = "acc_recorded_values";
-    //private static final String COL_ACC_REAL_DATA = "acc_FFT_real";
-    //private static final String COL_ACC_IMAG_DATA = "acc_FFT_imag";
-    //private static final String COL_ACC_FFT_MAG = "acc_FFT_magnitude";
+    // TABLE MOD_FFT
+    // Table name
+    private static final String TABLE_MOD_NAME = "FFT_modules";
+
+    // Table columns names
+    private static final String COL_MOD_ID = "ID";
+
+    private static final String COL_MOD_DATA = "data";
+    private static final String COL_MOD_LABEL = "label";
+    private static final String COL_MOD_REAL = "real";
+    private static final String COL_MOD_IMAG = "imag";
+
 
 
     public DatabaseHelper(Context context) {
@@ -71,6 +80,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COL_DURATION + " TEXT," + ACC_DATA + GYRO_DATA + ROTATION_DATA + COL_LABEL + " TEXT" + ")";
 
         db.execSQL(CREATE_TABLE);
+
+        String CREATE_MOD_TABLE = "CREATE TABLE " + TABLE_MOD_NAME + "(" + COL_MOD_ID + " INTEGER PRIMARY KEY,"
+                + COL_MOD_DATA + " TEXT," + COL_MOD_REAL + " TEXT," + COL_MOD_IMAG + " TEXT," + COL_MOD_LABEL + " TEXT" + ")";
+
+        db.execSQL(CREATE_MOD_TABLE);
+
     }
 
     // Upgrading database
@@ -78,6 +93,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older table if existed
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MOD_NAME);
         // Create tables again
         onCreate(db);
     }
@@ -105,6 +121,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COL_DURATION, String.valueOf(duration_time));
         contentValues.put(COL_LABEL, label);
         long result = db.insert(TABLE_NAME, null, contentValues);
+        if (result == -1)
+            return false;
+        else
+            return true;
+    }
+
+    //Inserting data to FFT module table
+    public boolean insertFFTData(double[] modules, double[] real, double[] imag, String label) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COL_MOD_DATA, Arrays.toString(modules));
+        contentValues.put(COL_MOD_REAL, Arrays.toString(real));
+        contentValues.put(COL_MOD_IMAG, Arrays.toString(imag));
+        contentValues.put(COL_MOD_LABEL, label);
+        long result = db.insert(TABLE_MOD_NAME, null, contentValues);
         if (result == -1)
             return false;
         else
