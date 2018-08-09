@@ -46,4 +46,19 @@
         android:text="Start"
         android:layout_marginTop="20dp"/>
 
+    <Button
+        android:id="@+id/buttonClassify"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:text="Classify"
+        android:layout_marginTop="20dp"/>
+
+    <TextView
+        android:id="@+id/resultTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Not classified"
+        android:textSize="30dp"
+        android:layout_marginTop="20dp"/>
+
 </LinearLayout>
