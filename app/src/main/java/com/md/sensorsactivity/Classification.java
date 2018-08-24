@@ -19,7 +19,7 @@ public class Classification {
         try {
 
             //Create list of attributes
-            ArrayList<Attribute> attributeList = new ArrayList<Attribute>(128);
+            ArrayList<Attribute> attributeList = new ArrayList<Attribute>(dataArray.length);
 
             //Set attributes
             Attribute data1 = new Attribute("data1");
