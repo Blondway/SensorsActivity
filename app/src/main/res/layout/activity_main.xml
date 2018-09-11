@@ -17,7 +17,7 @@
             android:id="@+id/buttonDelete"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:text="Delete"
+            android:text="Usuń dane"
             android:layout_marginBottom="20dp"
             android:layout_gravity="center_horizontal"/>
 
@@ -25,7 +25,7 @@
             android:id="@+id/statusTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Not recording"
+            android:text="Zapisywanie wyłączone"
             android:textSize="24dp"
             android:layout_gravity="center_horizontal"
             android:textColor="@color/textSecondary"/>
@@ -43,7 +43,7 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:inputType="textPersonName"
-                android:text="Label" />
+                android:text="Etykieta" />
 
             <EditText
                 android:id="@+id/editTextSamples"
@@ -82,7 +82,7 @@
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_marginTop="20dp"
-            android:text="Classify"
+            android:text="Klasyfikuj"
             android:layout_gravity="center_horizontal"
             android:textColor="@color/textPrimary"/>
 
@@ -91,7 +91,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Not classified"
+            android:text="Brak klasyfikacji"
             android:textSize="24dp"
             android:layout_gravity="center_horizontal"
             android:textColor="@color/textSecondary"/>

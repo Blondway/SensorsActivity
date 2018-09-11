@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 public class InsertFFT {
 
-    int samples = 128;
+    int samples = 256;
 
     //double[] rawDataDoubleArray = new double[samples];
 
@@ -16,6 +16,10 @@ public class InsertFFT {
     public void fftToTable (double[] rawDataDoubleArray, String labelFFT) {
 
         realDoubleArray = rawDataDoubleArray; // compute FFT but from the copied Array
+
+        for (int s = 0; s < imagDoubleArray.length; s++) {
+            imagDoubleArray[s] = 0;
+        }
 
         //Calculate FFT for recorded data module
         FFT fft = new FFT(rawDataDoubleArray.length);
