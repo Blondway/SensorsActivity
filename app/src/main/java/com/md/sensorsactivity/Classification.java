@@ -87,7 +87,6 @@ public class Classification {
             Attribute data63 = new Attribute("data63");
             Attribute data64 = new Attribute("data64");
 
-
             //Class attribute
             ArrayList<String> classVal = new ArrayList<String>();
             classVal.add("chodzenie");
@@ -158,7 +157,6 @@ public class Classification {
             attributeList.add(data62);
             attributeList.add(data63);
             attributeList.add(data64);
-
 
             attributeList.add(new Attribute("@@class@@",classVal));
 
@@ -234,7 +232,6 @@ public class Classification {
             inst_co.setValue(data63, dataArray[62]);
             inst_co.setValue(data64, dataArray[63]);
 
-
             // Add instance to dataset
             data.add(inst_co);
             data.setClassIndex(data.numAttributes() - 1);
@@ -248,7 +245,7 @@ public class Classification {
             e.printStackTrace();
         }
 
-        Log.d("", "Classification result = " + result); // 0.0 - chodzenie, 1.0 - stanie
+        Log.d("", "Classification result = " + result);
 
         return result;
     }

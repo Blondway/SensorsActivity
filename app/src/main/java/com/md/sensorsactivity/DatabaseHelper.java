@@ -8,9 +8,8 @@ import java.util.Arrays;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    // All Static variables
     // Database Version
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 11;
 
     // Database name
     private static final String DATABASE_NAME = com.md.sensorsactivity.MainActivity.getNameOfDB();
@@ -36,19 +35,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL_GYRO_Y = "gyro_Y";
     private static final String COL_GYRO_Z = "gyro_Z";
 
-    // TABLE MOD_FFT
-    // Table name
-    private static final String TABLE_MOD_NAME = "FFT_modules";
-
-    // Table columns names
-    private static final String COL_MOD_ID = "ID";
-
-    private static final String COL_MOD_DATA = "data";
-    private static final String COL_MOD_LABEL = "label";
-    private static final String COL_MOD_REAL = "real";
-    private static final String COL_MOD_IMAG = "imag";
-
-
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -67,11 +53,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         db.execSQL(CREATE_TABLE);
 
-        String CREATE_MOD_TABLE = "CREATE TABLE " + TABLE_MOD_NAME + "(" + COL_MOD_ID + " INTEGER PRIMARY KEY,"
-                + COL_MOD_DATA + " TEXT," + COL_MOD_REAL + " TEXT," + COL_MOD_IMAG + " TEXT," + COL_MOD_LABEL + " TEXT" + ")";
-
-        db.execSQL(CREATE_MOD_TABLE);
-
     }
 
     // Upgrading database
@@ -79,7 +60,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older table if existed
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MOD_NAME);
         // Create tables again
         onCreate(db);
     }
@@ -107,26 +87,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return true;
     }
 
-    //Inserting data to FFT module table
-    public boolean insertFFTData(double[] modules, double[] real, double[] imag, String label) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(COL_MOD_DATA, Arrays.toString(modules));
-        contentValues.put(COL_MOD_REAL, Arrays.toString(real));
-        contentValues.put(COL_MOD_IMAG, Arrays.toString(imag));
-        contentValues.put(COL_MOD_LABEL, label);
-        long result = db.insert(TABLE_MOD_NAME, null, contentValues);
-        if (result == -1)
-            return false;
-        else
-            return true;
-    }
-
-
     //Deleting all data from the table
     public void deleteAllRows() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("delete from " + TABLE_NAME);
-        db.execSQL("delete from " + TABLE_MOD_NAME);
     }
 }
